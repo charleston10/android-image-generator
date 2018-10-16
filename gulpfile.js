@@ -1,15 +1,30 @@
 var gulp = require('gulp');
 const flatMap = require('flat-map').default
 const scaleImages = require('gulp-scale-images')
-
 const path = require('path')
+
 
 const pngWidth = 284
 const pngHeight = 160
 
-const twoVariantsPerFile = (file, cb) => {
+const mdpiScale = (file, cb) => {
     const pngFile = file.clone()
     pngFile.scale = { maxWidth: pngWidth, maxHeight: pngHeight, format: 'png' }
+    cb(null, [pngFile])
+}
+const hdpiScale = (file, cb) => {
+    const pngFile = file.clone()
+    pngFile.scale = { maxWidth: Math.floor(pngWidth * 1.5), maxHeight: Math.floor(pngHeight * 1.5), format: 'png' }
+    cb(null, [pngFile])
+}
+const xhdpiScale = (file, cb) => {
+    const pngFile = file.clone()
+    pngFile.scale = { maxWidth: Math.floor(pngWidth * 2), maxHeight: Math.floor(pngHeight * 2), format: 'png' }
+    cb(null, [pngFile])
+}
+const xxhdpiScale = (file, cb) => {
+    const pngFile = file.clone()
+    pngFile.scale = { maxWidth: Math.floor(pngWidth * 3), maxHeight: Math.floor(pngHeight * 3), format: 'png' }
     cb(null, [pngFile])
 }
 
@@ -22,9 +37,21 @@ const computeFileName = (output, scale, cb) => {
 
 gulp.task('default', function () {
     gulp.src('foo_images/*.{jpeg,jpg,png,gif}')
-        .pipe(flatMap(twoVariantsPerFile))
+        .pipe(flatMap(mdpiScale))
+        .pipe(scaleImages(computeFileName))
+        .pipe(gulp.dest('drawable-mdpi/'));
+    gulp.src('foo_images/*.{jpeg,jpg,png,gif}')
+        .pipe(flatMap(hdpiScale))
         .pipe(scaleImages(computeFileName))
         .pipe(gulp.dest('drawable-hdpi/'));
+    gulp.src('foo_images/*.{jpeg,jpg,png,gif}')
+        .pipe(flatMap(xhdpiScale))
+        .pipe(scaleImages(computeFileName))
+        .pipe(gulp.dest('drawable-xhdpi/'));
+    gulp.src('foo_images/*.{jpeg,jpg,png,gif}')
+        .pipe(flatMap(xxhdpiScale))
+        .pipe(scaleImages(computeFileName))
+        .pipe(gulp.dest('drawable-xxhdpi/'));
 });
 
 /*---size img atual----1280 x 720
